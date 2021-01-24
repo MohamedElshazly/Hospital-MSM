@@ -161,7 +161,7 @@ class Staff_Response(LoginRequiredMixin, ListView):
 
 def Work_Process(request, pk, pk2):
     eng = Engineer.objects.get(id = request.user.id)
-    current_time_seconds = 20
+    current_time_seconds = round(time.time())
     if pk == 1: 
         eng.start_time = current_time_seconds
         eng.save()
