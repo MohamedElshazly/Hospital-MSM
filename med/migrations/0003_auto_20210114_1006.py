@@ -17,11 +17,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='engineer',
-            name='response_time',
-            field=models.DurationField(null=True, verbose_name='Response Time'),
-        ),
-        migrations.AddField(
-            model_name='engineer',
             name='start_time',
             field=models.IntegerField(default=0),
         ),
