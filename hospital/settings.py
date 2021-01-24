@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = '2xz79$x!p7z%qmyp#(#&f5ys9s^&*z_^gh%_-4#(h=ks(!nrd4'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['hospital-msm.herokuapp.com']
 
