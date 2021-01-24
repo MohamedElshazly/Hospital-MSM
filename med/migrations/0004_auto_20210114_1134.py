@@ -20,9 +20,4 @@ class Migration(migrations.Migration):
             name='total_response_time',
             field=models.DurationField(default=datetime.timedelta(0), verbose_name='Total_Response Time'),
         ),
-        migrations.AlterField(
-            model_name='engineer',
-            name='start_time',
-            field=models.IntegerField(default=0),
-        ),
     ]

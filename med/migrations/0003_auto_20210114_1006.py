@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='engineer',
             name='start_time',
-            field=models.DurationField(null=True),
+            field=models.IntegerField(default=0),
         ),
         migrations.AddField(
             model_name='engineer',
