@@ -167,9 +167,10 @@ def Work_Process(request, pk, pk2):
         eng.save()
         return redirect('eng-work') 
     
-    current_time_seconds_end = current_time_seconds - eng.start_time
+    # current_time_seconds_end = current_time_seconds - eng.start_time
+    current_time_seconds_end = current_time_seconds
     response_time_delta = datetime.timedelta(seconds=round(current_time_seconds_end))
-    eng.start_time = 0
+    # eng.start_time = 0
     eng.orders_done += 1
     eng.total_response_time += response_time_delta
     eng.average_response_time = eng.total_response_time / eng.orders_done
