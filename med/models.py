@@ -90,7 +90,7 @@ class Engineer(User):
     is_busy = models.BooleanField(_("Busy"), default=False)
     total_orders = models.IntegerField(_("Total Work Orders"), default=0)
     orders_done = models.IntegerField(_("Total Work Orders Done"), default=0)
-    # start_time = models.IntegerField(default=0)
+    start_time = models.IntegerField(default=0)
     total_response_time = models.DurationField(_("Total_Response Time"), default=datetime.timedelta())
     average_response_time = models.DurationField(_("Average_Response Time"), default=datetime.timedelta())
     objects = EngineerManager()
