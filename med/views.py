@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import CreateView, TemplateView, ListView, DetailView, UpdateView
 from .models import Engineer, Hospital, Doctor, Equipment, Manager, Notifications, Department, Company
-from .forms import HospitalForm, CreateCompanyForm
+from .forms import HospitalForm, CreateCompanyForm, UploadJsonForm
 from django.urls import reverse_lazy
 from django.db.models import Q
 from med.forms import JoinHospitalForm
@@ -10,11 +10,12 @@ from authentication.models import User
 from workflow.models import Ticket
 import os
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template import Context
 from django.template.loader import get_template
 import datetime
-from xhtml2pdf import pisa 
+from xhtml2pdf import pisa
+import json 
 
 class SearchHospitalView(LoginRequiredMixin, ListView):
     model = Hospital
@@ -193,3 +194,47 @@ def generate_PDF(request, pk):
     pdf = file.read()
     file.close()            
     return HttpResponse(pdf, 'application/pdf')
+
+def handle_uploaded_file(request, f):
+    man = Manager.objects.get(id = request.user.id)
+
+    with open('hospital_data.json', 'wb+') as data:
+        for chunk in f.chunks():
+            data.write(chunk)
+
+    with open('hospital_data.json', 'r') as read_file:
+        data = json.load(read_file)
+    
+    for dep in data['departments']:   
+        for dep_name in dep:
+            new_dep = Department.objects.create(name=dep_name, hospital = man.hospital)
+            new_dep.save()
+            for equip in dep[dep_name]['Equipment']:
+                new_equip = Equipment.objects.create(name = equip['name'],
+                                                     specs = equip['specs'],
+                                                     quantity = equip['quantity'],
+                                                     serial_num = equip['serial_num'], 
+                                                     manufacturer = equip['manufacturer'],
+                                                     country = equip['country'],
+                                                     model = equip['model'],
+                                                     risk_level = equip['risk_level'],
+                                                     eq_class = equip['eq_class'],
+                                                     bio_code = equip['bio_code'],
+                                                     med_agent = equip['med_agent'],
+                                                     delivery_date = equip['delivery_date'],
+                                                     warrenty_date = equip['warrenty_date'],
+                                                     department = new_dep, 
+                                                     hospital = man.hospital)
+                new_equip.save()
+
+
+
+def upload_json(request):
+    if request.method == 'POST':
+        form = UploadJsonForm(request.POST, request.FILES)
+        if form.is_valid():
+            handle_uploaded_file(request, request.FILES['file'])
+            return redirect('home')
+    else:
+        form = UploadJsonForm()
+    return render(request, 'med/upload_json.html', {'form': form})

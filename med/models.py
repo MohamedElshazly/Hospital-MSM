@@ -21,7 +21,7 @@ class Hospital(models.Model):
 
 
 class Department(models.Model):
-    name = models.CharField(_("Department Name"), max_length = 225, unique=True)
+    name = models.CharField(_("Department Name"), max_length = 225)
     hospital = models.ForeignKey(Hospital, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
@@ -34,7 +34,7 @@ class Equipment(models.Model):
         ('DOWN', _("DOWN"))
     )
     status = models.CharField(_("Equipment Status"), max_length=50, choices=STATUS, default='LIVE')
-    name = models.CharField(_("Equipment Name"), max_length = 225, unique=True) #unique=True
+    name = models.CharField(_("Equipment Name"), max_length = 225) #unique=True
     specs = models.TextField(_("Technical Specifications and Standards"))
     quantity = models.IntegerField()
     serial_num = models.IntegerField()
@@ -47,8 +47,8 @@ class Equipment(models.Model):
     med_agent = models.CharField(_("Medical Agent"),null=True, max_length = 225)
     delivery_date = models.DateField(_("Delivery Date"),null=True)
     warrenty_date = models.DateField(_("End Warrenty Date"),null=True)
-    department = models.ForeignKey(Department, null = True, on_delete=models.SET_NULL)
-    hospital = models.ForeignKey(Hospital, null = True, on_delete=models.SET_NULL)
+    department = models.ForeignKey(Department, null = True, on_delete=models.CASCADE)
+    hospital = models.ForeignKey(Hospital, null = True, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name

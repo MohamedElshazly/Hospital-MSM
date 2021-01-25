@@ -39,6 +39,9 @@
             {%if user.type == 'MANAGER' %}
             {% if  user.hospital%}
                 <li class="nav-item text-nowrap">
+                  <a class="nav-link" href="{% url 'upload-json' %}">Upload Json</a>
+                </li>
+                <li class="nav-item text-nowrap">
                   <a class="nav-link" href="{% url 'equipment-list' %}">Medical Equipment</a>
                 </li>
     

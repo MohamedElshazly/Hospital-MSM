@@ -39,3 +39,6 @@ class CreateCompanyForm(forms.ModelForm):
     name = forms.CharField()
     email = forms.EmailField()
     phone_num = forms.CharField()
+
+class UploadJsonForm(forms.Form):
+    file = forms.FileField()
