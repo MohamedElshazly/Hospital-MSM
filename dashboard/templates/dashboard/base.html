@@ -37,7 +37,6 @@
           <ul class="nav flex-column">
             {% if user.is_authenticated and user.is_active %}
             {%if user.type == 'MANAGER' %}
-            <p>{{user.is_active}}</p>
             {% if  user.hospital%}
                 <li class="nav-item text-nowrap">
                   <a class="nav-link" href="{% url 'upload-json' %}">Upload Json</a>
