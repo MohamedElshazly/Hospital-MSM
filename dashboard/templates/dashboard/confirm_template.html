@@ -1,13 +1,15 @@
-{% extends "dashboard/base.html" %}
-
-{% block content %}
-
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmation</title>
+</head>
+<body>
 {% if success %}
-{{ user.first_name }} {{ user.last_name }}, your account is confirmed!
+{{ user.username }}, your account is confirmed!
 {% else %}
 Error, invalid token!
 {% endif %}
 <a href="{% url 'login' %}"><button class='btn btn-primary'>Login Now!</button></a>
-
-{% endblock %}
+</body>
+</html>
