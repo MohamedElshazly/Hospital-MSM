@@ -22,8 +22,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '2xz79$x!p7z%qmyp#(#&f5ys9s^&*z_^gh%_-4#(h=ks(!nrd4'
-# SECRET_KEY = os.environ.get('SECRET_KEY_MSM')
+# SECRET_KEY = '2xz79$x!p7z%qmyp#(#&f5ys9s^&*z_^gh%_-4#(h=ks(!nrd4'
+SECRET_KEY = os.environ.get('SECRET_KEY_MSM')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -145,7 +145,7 @@ def verified_callback(user):
 
 
 EMAIL_VERIFIED_CALLBACK = verified_callback
-EMAIL_FROM_ADDRESS = 'noreply@aliasaddress.com'
+EMAIL_FROM_ADDRESS = 'omniscientist18@gmail.com'
 EMAIL_MAIL_SUBJECT = 'Confirm your email'
 EMAIL_MAIL_HTML = 'dashboard/mail_body.html'
 EMAIL_MAIL_PLAIN = 'dashboard/mail_body.txt'
@@ -158,7 +158,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'omniscientist18@gmail.com'
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASS')
+print(os.environ.get('EMAIL_PASS'))
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASS')
 EMAIL_USE_TLS = True
 
 django_heroku.settings(locals())
