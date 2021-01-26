@@ -35,8 +35,9 @@
       <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
         <div class="sidebar-sticky pt-3">
           <ul class="nav flex-column">
-            {% if user.is_authenticated %}
+            {% if user.is_authenticated and user.is_active %}
             {%if user.type == 'MANAGER' %}
+            <p>{{user.is_active}}</p>
             {% if  user.hospital%}
                 <li class="nav-item text-nowrap">
                   <a class="nav-link" href="{% url 'upload-json' %}">Upload Json</a>

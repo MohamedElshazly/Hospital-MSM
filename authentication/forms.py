@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from med.models import Manager, Doctor, Engineer
+from django_email_verification import send_email
 
 class ManagerSignUpForm(UserCreationForm):
     email = forms.EmailField()
@@ -12,7 +13,9 @@ class ManagerSignUpForm(UserCreationForm):
     def save(self):
         user = super().save(commit=False)
         user.type = 'MANAGER'
+        user.is_active = False
         user.save()
+        send_email(user)
         return user
 
 class EngineerSignUpForm(UserCreationForm):
@@ -25,7 +28,9 @@ class EngineerSignUpForm(UserCreationForm):
     def save(self):
         user = super().save(commit=False)
         user.type = 'ENGINEER'
+        user.is_active = False
         user.save()
+        send_email(user)
         return user
 
 class DoctorSignUpForm(UserCreationForm):
@@ -38,5 +43,7 @@ class DoctorSignUpForm(UserCreationForm):
     def save(self):
         user = super().save(commit=False)
         user.type = 'DOCTOR'
+        user.is_active = False
         user.save()
+        send_email(user)
         return user

@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from .forms import ManagerSignUpForm, EngineerSignUpForm, DoctorSignUpForm
 from django.views.generic import TemplateView, ListView
 from med.models import Hospital
+from django.contrib import messages
+
 
 class SignUpView(TemplateView):
     template_name = 'authentication/register.html'
@@ -11,6 +13,7 @@ def ManagerRegister(request):
         form = ManagerSignUpForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, f'An Email has been sent, please confirm to log in..')
             return redirect('login')
     else:
         form = ManagerSignUpForm()
@@ -21,6 +24,7 @@ def EngineerRegister(request):
         form = EngineerSignUpForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, f'An Email has been sent, please confirm to log in..')
             return redirect('login')
     else:
         form = EngineerSignUpForm()
@@ -31,6 +35,7 @@ def DoctorRegister(request):
         form = DoctorSignUpForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, f'An Email has been sent, please confirm to log in..')
             return redirect('login')
     else:
         form = DoctorSignUpForm()
