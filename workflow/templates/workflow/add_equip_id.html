@@ -29,18 +29,11 @@
         <tbody>
             {% for equip in equipment %}
                 {% if equip.is_approved %}
-                    {% if user.type == 'ENGINEER' and equip.department in eng.department.all %}
-                        <tr>
-                            <td>{{ equip.id }}</td>
-                            <td><a href="{% url 'equipment-details' equip.id %}">{{ equip.name }}</a></td>
-                        </tr>
-                    {% elif user.type == 'MANAGER' %}
-                        <tr>
-                            <td>{{ equip.id }}</td>
-                            <td><a href="{% url 'equipment-details' equip.id %}">{{ equip.name }}</a></td>
-                        </tr>            
-                    {% endif %} 
-                {% endif %}               
+                    <tr>
+                        <td>{{ equip.id }}</td>
+                        <td> <a href="{% url 'equipment-details' equip.id %}">{{ equip.name }}</a></td>
+                    </tr>
+                {% endif %}
             {% endfor %}
         </tbody>
     </table>

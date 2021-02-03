@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.views.generic.edit import FormMixin
 from django.views.generic import CreateView, TemplateView, ListView, DetailView, UpdateView
-from .models import Engineer, Hospital, Doctor, Equipment, Manager, Notifications, Department, Company
-from .forms import HospitalForm, CreateCompanyForm, UploadJsonForm
+from .models import Engineer, Hospital, Doctor, Equipment, Manager, Notifications, Department, Company, EditedEquipment
+from .forms import HospitalForm, CreateCompanyForm, UploadJsonForm, RequestJoinForm
 from django.urls import reverse_lazy
 from django.db.models import Q
 from med.forms import JoinHospitalForm
@@ -15,7 +16,9 @@ from django.template import Context
 from django.template.loader import get_template
 import datetime
 from xhtml2pdf import pisa
-import json 
+import json
+from django.contrib import messages
+
 
 class SearchHospitalView(LoginRequiredMixin, ListView):
     model = Hospital
@@ -47,6 +50,26 @@ class EquipmentListView(LoginRequiredMixin, ListView):
             object_list = man.hospital.equipment_set.all()
             # object_list = [eq for q1 in dep_list for eq in q1.equipment_set.all()]
             return object_list
+    
+    def get_context_data(self, **kwargs):
+        context = super(EquipmentListView, self).get_context_data(**kwargs)
+        if(self.request.user.type == 'ENGINEER'):
+            eng = Engineer.objects.get(id = self.request.user.id)
+            context['eng'] = eng 
+        return context
+
+class EditedEquipmentListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = EditedEquipment
+    template_name = 'med/edits_list.html'
+
+    def get_queryset(self):
+        man = Manager.objects.get(id = self.request.user.id)
+        object_list = man.current_hospital.editedequipment_set.all()
+        return object_list
+    
+    def test_func(self):
+        return self.request.user.type == 'MANAGER'
+
 
 class DepartmentListView(LoginRequiredMixin, ListView):
     model = Department
@@ -68,6 +91,16 @@ class DepartmentListView(LoginRequiredMixin, ListView):
             object_list = man.hospital.department_set.all()
             return object_list
 
+    def get_context_data(self, **kwargs):
+        context = super(DepartmentListView, self).get_context_data(**kwargs)
+        if(self.request.user.type == 'ENGINEER'):
+            eng = Engineer.objects.get(id = self.request.user.id)
+            context['eng'] = eng 
+        return context
+            
+
+
+
 class  SearchHospitalResultsView(LoginRequiredMixin, ListView):
     model = Hospital
     template_name = 'med/hospital_search_results.html'
@@ -83,10 +116,22 @@ class  SearchHospitalResultsView(LoginRequiredMixin, ListView):
 class HospitalDetailsView(LoginRequiredMixin, DetailView):
     model = Hospital 
     template_name = 'med/hospital_details.html'
+    # form_class = RequestJoinForm
+    # success_url = reverse_lazy('home')
     context_object_name = 'hospital'
+
+
     #can I send a specific context here ??
 
-class EquipmentDetailsView(LoginRequiredMixin, DetailView):
+    # def form_valid(self, form):
+    #     eng = Engineer.objects.get(id = self.request.user.id)
+    #     print(form.cleaned_data['department'])
+    #     print("here")
+    #     eng.department = form.cleaned_data['department']
+    #     eng.save()
+    #     return super().form_valid(form)
+
+class EquipmentDetailsView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Equipment 
     template_name = 'med/equipment_details.html'
     context_object_name = 'equipment'
@@ -101,6 +146,46 @@ class EquipmentDetailsView(LoginRequiredMixin, DetailView):
         except:
             pass
         return context
+    
+    def test_func(self):
+        eq = Equipment.objects.get(id = self.kwargs['pk'])
+        if eq.is_approved:
+            if self.request.user.type == 'ENGINEER':
+                eng = Engineer.objects.get(id = self.request.user.id)
+                if not self.get_object().department in eng.department.all():
+                    return False
+                return True 
+            return True
+        return False
+
+class PreApprovedEquipmentDetails(LoginRequiredMixin, DetailView):
+    model = Equipment 
+    template_name = 'med/pre_approved_equipment_details.html'
+    context_object_name = 'equipment'
+
+    def get_context_data(self, **kwargs):
+        context = super(PreApprovedEquipmentDetails, self).get_context_data(**kwargs)
+        context['equipment'] = Equipment.objects.get(id = self.kwargs['pk'])
+        return context
+    
+class DepartmentDetailsView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+    model = Department 
+    template_name = 'med/department_details.html'
+    context_object_name = 'department'
+    #can I send a specific context here ??
+
+    def get_context_data(self, **kwargs):
+        context = super(DepartmentDetailsView, self).get_context_data(**kwargs)
+        context['department'] = Department.objects.get(id = self.kwargs['pk'])
+        return context
+    
+    def test_func(self):
+        if self.request.user.type == 'ENGINEER':
+            eng = Engineer.objects.get(id = self.request.user.id)
+            if not self.get_object() in eng.department.all():
+                return False
+            return True 
+        return True 
 
 
 def JoinHospitalView(request, uid):
@@ -128,6 +213,7 @@ def JoinHospitalView(request, uid):
 def RequestJoinHospitalView(request, hid, uid):
     user = User.objects.get(id = uid)
     hospital = Hospital.objects.get(id = hid)
+    messages.success(request, f'A request to join hospital has been sent...')
     try :
         #check if use already submitted a request, and delete it if he did
         Notifications.objects.get(user=user).delete()

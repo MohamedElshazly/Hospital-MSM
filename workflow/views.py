@@ -2,12 +2,17 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import CreateView, ListView, UpdateView, DetailView 
 from workflow.models import Ticket
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .forms import TicketForm, TicketFormID, AssignEng, AddDepartmentForm, AddEquipmentForm, DepartmentUpdateForm, EquipmentUpdateForm
+from .forms import TicketForm, TicketFormID, AssignEng, AddDepartmentForm, AddEquipmentForm, DepartmentUpdateForm, EquipmentUpdateForm, AddEquipmentIDForm, AssignDepartment, AddEditedEquipmentForm
 from django.urls import reverse_lazy
-from med.models import Department, Doctor, Engineer, Equipment, Manager
+from med.models import Department, Doctor, Engineer, Equipment, Manager, EditedEquipment
 from authentication.models import User
 import time, datetime
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseRedirect
+from django.core.mail import send_mail
+from hospital.settings import EMAIL_FROM_ADDRESS
+from django.contrib import messages
+
 
 
 class Submit_Ticket(LoginRequiredMixin, CreateView):
@@ -78,11 +83,12 @@ class List_Tickets(LoginRequiredMixin, ListView):
             object_list = [ticket for q1 in dep_list for eq in q1.equipment_set.all() for ticket in eq.ticket_set.all().order_by('-id')]
             return object_list
     
-    # def get_context_data(self, **kwargs):
-    #     context = super(List_Tickets, self).get_context_data(**kwargs)
-    #     man = Manager.objects.get(id = self.request.user.id)
-    #     context['engineers'] = man.hospital.engineer_set.filter(is_busy=False)
-    #     return context
+    def get_context_data(self, **kwargs):
+        context = super(List_Tickets, self).get_context_data(**kwargs)
+        if(self.request.user.type == 'ENGINEER'):
+            eng = Engineer.objects.get(id = self.request.user.id)
+            context['eng'] = eng 
+        return context
 
 class Ticket_Details(LoginRequiredMixin, DetailView):
     model = Ticket
@@ -119,9 +125,24 @@ class Assign_Engineer(LoginRequiredMixin, UpdateView):
         if user :
             user.total_orders -= 1
             user.save()
+        
+        send_mail('Work order',
+                'you have a new work order, please check it: http://localhost:8000/workflow/engineer_work/', 
+                EMAIL_FROM_ADDRESS,
+                [eng.email])
         return super().form_valid(form)
 
+class Assign_Department(LoginRequiredMixin, UpdateView):
+    model = Engineer
+    template_name = 'workflow/assign_department.html'
+    form_class = AssignDepartment
+    success_url = reverse_lazy('list-employees')
 
+    def get_form_kwargs(self):
+        kwargs = super(Assign_Department, self).get_form_kwargs()
+        kwargs.update({'request': self.request})
+        return kwargs
+    
 class Engineer_Work(LoginRequiredMixin, ListView):
     model = Ticket 
     template_name = 'workflow/eng_work.html'
@@ -198,6 +219,7 @@ class Add_Department(LoginRequiredMixin, CreateView):
         context = super(Add_Department, self).get_context_data(**kwargs)
         eng = Engineer.objects.get(id = self.request.user.id)
         context['departments'] = Department.objects.filter(hospital = eng.current_hospital)
+        context['eng'] = eng
         return context
 
 @login_required
@@ -211,37 +233,105 @@ def update_department(request, pk):
             return redirect('department-list')
               
     d_form = DepartmentUpdateForm(instance=dep)
+    equip = dep.equipment_set.all()
 
     context = {
-            'd_form' : d_form
+            'd_form' : d_form,
+            'equip' : equip
             }
     return render(request, "workflow/edit_dep.html", context)
 
 @login_required
 def update_equipment(request, pk):
     equip = Equipment.objects.get(id = pk)
+    deps = equip.hospital.department_set.all()
     if request.method == 'POST':
-        e_form = EquipmentUpdateForm(request.POST, instance=equip)
+        e_form = EquipmentUpdateForm(request.POST, instance=equip, deps = deps)
         if e_form.is_valid():
             e_form.save()
             # messages.success(request, f'Account Info Updated!!')
-            return redirect('equipment-details', pk = pk)
-              
-    e_form = EquipmentUpdateForm(instance=equip)
+            # return redirect('equipment-details', pk = pk)
+            next = request.POST.get('next', request.META.get('HTTP_REFERER'))
+            return HttpResponseRedirect(next)              
+    e_form = EquipmentUpdateForm(instance=equip, deps = deps)
 
     context = {
             'e_form' : e_form
             }
-    return render(request, "workflow/edit_equip.html", context)  
+    return render(request, "workflow/edit_equip.html", context)
+
+@login_required
+def update_edited_equipment(request, pk):
+    edited_equip = EditedEquipment.objects.get(id = pk)
+    equip = Equipment.objects.get(id = edited_equip.eq_id)
+    equip.name = edited_equip.name
+    equip.specs = edited_equip.specs
+    equip.quantity = edited_equip.quantity
+    equip.serial_num = edited_equip.serial_num
+    equip.manufacturer = edited_equip.manufacturer
+    equip.country = edited_equip.country
+    equip.model = edited_equip.model
+    equip.risk_level = edited_equip.risk_level
+    equip.eq_class = edited_equip.eq_class
+    equip.bio_code = edited_equip.bio_code
+    equip.med_agent = edited_equip.med_agent
+    equip.delivery_date = edited_equip.delivery_date
+    equip.warrenty_date = edited_equip.warrenty_date
+    equip.department = edited_equip.department
+    equip.id = edited_equip.eq_id
+    equip.save()
+    edited_equip.delete()
+    return redirect('home')  
+
+class Add_Edited_Equipment(LoginRequiredMixin, CreateView):
+    model = EditedEquipment
+    template_name = 'workflow/add_edited_equip.html'
+    form_class = AddEditedEquipmentForm
+
+    
+    def get_success_url(self):
+        next = self.request.POST.get('next', self.request.META.get('HTTP_REFERER'))
+        if next:
+            return next
+        else:
+            return reverse_lazy('department-list')
+
+    def get_form_kwargs(self):
+            kwargs = super(Add_Edited_Equipment, self).get_form_kwargs()
+            kwargs.update({'request': self.request, 'pk': self.kwargs['pk']})
+            return kwargs
+    
+    def form_valid(self, form):
+        eng = Engineer.objects.get(id = self.request.user.id)
+        form.instance.hospital = eng.current_hospital
+        form.instance.eq_id = self.kwargs['pk']
+        form.instance.eng = eng
+        messages.success(self.request, f'A request to Edit Equipment has been sent, waiting for manager approval...')
+        return super().form_valid(form)
+
+class Edited_Equipment_Details(LoginRequiredMixin, DetailView):
+    model = EditedEquipment
+    template_name = 'med/edited_equipment_details.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(Edited_Equipment_Details, self).get_context_data(**kwargs)
+        context['equipment'] = EditedEquipment.objects.get(id = self.kwargs['pk'])
+        return context
 
 class Add_Equipment(LoginRequiredMixin, CreateView):
     model = Equipment
     template_name = 'workflow/add_equip.html'
     form_class = AddEquipmentForm
     # context_object_name = 'equip' 
-    success_url = reverse_lazy('add-department')
+    # success_url = reverse_lazy('department-list')
 
-    
+    def get_success_url(self):
+        next = self.request.POST.get('next', self.request.META.get('HTTP_REFERER'))
+        if next:
+            return next
+        else:
+            return reverse_lazy('department-list')
+        
     def get_form_kwargs(self):
             kwargs = super(Add_Equipment, self).get_form_kwargs()
             kwargs.update({'request': self.request})
@@ -249,14 +339,52 @@ class Add_Equipment(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.hospital = Engineer.objects.get(id = self.request.user.id).current_hospital
+        if self.request.user.type == 'ENGINEER':
+            form.instance.is_approved = False
+        messages.success(self.request, f'A request to Add new Equipment has been sent, waiting for manager approval...')
         return super().form_valid(form)
     
     def get_context_data(self, **kwargs):
         context = super(Add_Equipment, self).get_context_data(**kwargs)
         eng = Engineer.objects.get(id = self.request.user.id)
         context['equipment'] = Equipment.objects.filter(hospital = eng.current_hospital)
+        context['eng'] = eng
         return context
 
+@login_required
+def approve_added_equipment(request, pk):
+    #get equipment
+    equipment = Equipment.objects.get(id = pk)
+    # approve it
+    equipment.is_approved = True
+    equipment.save()
+    return redirect('home')
+
     
+class Add_Equipment_ID(LoginRequiredMixin, CreateView):
+    model = Equipment
+    template_name = 'workflow/add_equip_id.html'
+    form_class = AddEquipmentIDForm
     
+    def get_success_url(self):
+        next = self.request.POST.get('next', self.request.META.get('HTTP_REFERER'))
+        if next:
+            return next
+        else:
+            return reverse_lazy('department-list')
+
+    def form_valid(self, form):
+        dep = Department.objects.get(id = self.kwargs['pk'])
+        form.instance.department = dep
+        form.instance.hospital = dep.hospital
+        if self.request.user.type == 'ENGINEER':
+            form.instance.is_approved = False
+            messages.success(self.request, f'A request to Add new Equipment has been sent, waiting for manager approval...')
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super(Add_Equipment_ID, self).get_context_data(**kwargs)
+        dep = Department.objects.get(id = self.kwargs['pk'])
+        context['equipment'] = dep.equipment_set.all()
+        return context 
 

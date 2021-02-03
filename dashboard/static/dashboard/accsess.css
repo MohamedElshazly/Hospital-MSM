@@ -131,3 +131,8 @@ img {
     width: -webkit-fill-available;
     block-size: auto;
 }
+
+.qr-img {
+    width: 128px;
+    height: 128px;
+}

@@ -42,3 +42,9 @@ class CreateCompanyForm(forms.ModelForm):
 
 class UploadJsonForm(forms.Form):
     file = forms.FileField()
+
+class RequestJoinForm(forms.Form):
+    department = forms.ModelChoiceField(
+        queryset=Department.objects.all(),
+        widget=forms.Select
+    )

@@ -29,7 +29,13 @@
             {% for dep in departments %}
             <tr>
                 <td>{{ dep.id }}</td>
-                <td>{{ dep.name }}</td>
+                {% if user.type == 'ENGINEER' and dep in eng.department.all %}
+                    <td><a href="{% url 'department-details' dep.id %}">{{ dep.name }}</a></td>
+                {% elif user.type == 'MANAGER' %}
+                    <td><a href="{% url 'department-details' dep.id %}">{{ dep.name }}</a></td>
+                {% else %}
+                    <td>{{ dep.name }}</td>
+                {% endif %}
             </tr>
             {% endfor %}
         </tbody>

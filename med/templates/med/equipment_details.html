@@ -1,6 +1,20 @@
 {% extends "dashboard/base.html" %}
+{% load static %}
+<style>
+  .qr {
+      width: 128px;
+      height: 128px;
+  }
+</style>
 
 {% block content %} 
+{% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{message.tags}}">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
 
 <div class="container">
     <h1 class="h2">General Data</h1>
@@ -55,6 +69,10 @@
         </tbody>
       </table>
 </div>
+{% if equipment.qr_code %}
+  <a href="http://localhost:8000{{ equipment.qr_code.url }}">View QR Code</a>
+  <!-- <img class="qr" src="{{ equipment.qr_code.url }}" width="128" height="128"> -->
+{% endif %}
 
 {% if user.type == 'DOCTOR' %}
     {% if equipment.status == 'LIVE' %}
@@ -62,13 +80,17 @@
     {% else %}
         <p>**UNDER MAINTENANCE**</p> 
     {% endif %}
-{% elif user.type == 'ENGINEER' %}
+{% elif user.type == 'ENGINEER' or user.type == 'MANAGER' %}
   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
 
     <!--Buttons-->
     <div class="d-grid gap-2 col-6 mx-auto">
-        <a href="{% url 'edit-equipment' equipment.id%}"><button class="btn btn-primary" type="button">Edit</button></a>
-        <a href="#"><button class="btn btn-primary" type="button">Send Work Order</button></a>
+        {% if user.type == 'ENGINEER' %}
+          <a href="{% url 'add-edited-equipment' equipment.id%}"><button class="btn btn-primary" type="button">Edit</button></a>
+        {% elif user.type == 'MANAGER' %}
+          <a href="{% url 'edit-equipment' equipment.id%}"><button class="btn btn-primary" type="button">Edit</button></a>
+        {% endif %}
+          <a href="#"><button class="btn btn-primary" type="button">Send Work Order</button></a>
         <a href="#"><button class="btn btn-primary" type="button">Service Manual</button></a>
         {% if equipment.status == 'DOWN' %} 
         <a href="#"><button class="btn btn-primary" type="button">Maintenance</button></a>

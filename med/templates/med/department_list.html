@@ -1,6 +1,13 @@
 {% extends "dashboard/base.html" %}
 
 {% block content%}
+{% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{message.tags}}">
+            {{ message }}
+        </div>
+        {% endfor %}
+{% endif %}
     <div class="container">
         <h2 class="border-top mb-4">Departments</h2>
 
@@ -17,9 +24,15 @@
                 {% for department in object_list %}
                     <tr>
                         <td>{{ department.id }}</td>
-                        <td>{{ department.name }}</td>
-                        {% if user.type == 'ENGINEER' or user.type == 'MANAGER' %}
-                        <td><a href="{% url 'edit-department' department.id %}">Edit</a></td>
+                        {% if user.type == 'ENGINEER' and department in eng.department.all %}      
+                            <td><a href="{% url 'department-details' department.id %}">{{ department.name }}</a></td>
+                            <td><a href="{% url 'edit-department' department.id %}">Edit</a></td>
+                        {% elif user.type == 'MANAGER' %}
+                            <td><a href="{% url 'department-details' department.id %}">{{ department.name }}</a></td>
+                            <td><a href="{% url 'edit-department' department.id %}">Edit</a></td>
+                        {% else %}
+                            <td>{{ department.name }}</td>
+                            <td></td>
                         {% endif %}
                     </tr>
                 {% endfor %}
@@ -27,7 +40,10 @@
                 </tbody>
             </table>
             {% if user.type == 'ENGINEER' %}
-            <a class="nav-link" href="{% url 'add-department' %}"><button class='btn btn-primary'>Add Department</button></a>
+            <div class="d-grid gap-2 col-6 mx-auto">
+                <a  href="{% url 'add-department' %}"><button class='btn btn-primary'>Add Department</button></a>
+                <a  href="{% url 'add-equipment' %}"><button class='btn btn-primary'>Add Equipment</button></a>
+            </div>
             {% endif %}
         </div>   
     

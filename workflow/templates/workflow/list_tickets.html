@@ -32,26 +32,47 @@
             </thead>
             <tbody>
                 {% for ticket in object_list %}
-                    
-                        <tr>
-                            <td>{{ ticket.id }}</td>
-                            <td>{{ ticket.submitter.first_name }} {{ticket.submitter.last_name}}</td>
-                            <td>{{ ticket.user.first_name }} {{ticket.user.last_name}}</td>
-                            <td><a href="{% url 'equipment-details' ticket.equipment.id %}">{{ ticket.equipment }}</a></td>
-                            <td>{{ ticket.equipment.department }}</td>
-                            <td>{{ ticket.ticket_type }}</td>
-                            <td>{{ ticket.status }}</td>
-                            <td>{{ ticket.response_time }}</td>
-                            {% if user.type == 'MANAGER'%}
-                              {% if ticket.status == 'OPEN' %} 
-                                <td><a href="{% url 'assign-engineer' ticket.id%}"><button class="btn btn-primary" type="submit">Assign to</button></a></td>                                  
-                              {% endif %}
-                            {% else %}
-                              {% if ticket.status == 'OPEN' %} 
-                                <td><button class='btn btn-primary'>Take</button></td>
-                              {% endif %}
+                  {% if user.type == 'ENGINEER' and ticket.equipment.department in eng.department.all %}
+                      <tr>
+                          <td>{{ ticket.id }}</td>
+                          <td>{{ ticket.submitter.first_name }} {{ticket.submitter.last_name}}</td>
+                          <td>{{ ticket.user.first_name }} {{ticket.user.last_name}}</td>
+                          <td><a href="{% url 'equipment-details' ticket.equipment.id %}">{{ ticket.equipment }}</a></td>
+                          <td>{{ ticket.equipment.department }}</td>
+                          <td>{{ ticket.ticket_type }}</td>
+                          <td>{{ ticket.status }}</td>
+                          <td>{{ ticket.response_time }}</td>
+                          {% if user.type == 'MANAGER'%}
+                            {% if ticket.status == 'OPEN' %} 
+                              <td><a href="{% url 'assign-engineer' ticket.id%}"><button class="btn btn-primary" type="submit">Assign to</button></a></td>                                  
                             {% endif %}
-                        </tr>
+                          {% else %}
+                            {% if ticket.status == 'OPEN' %} 
+                              <td><button class='btn btn-primary'>Take</button></td>
+                            {% endif %}
+                          {% endif %}
+                      </tr>
+                  {% elif user.type == 'MANAGER' %}
+                    <tr>
+                        <td>{{ ticket.id }}</td>
+                        <td>{{ ticket.submitter.first_name }} {{ticket.submitter.last_name}}</td>
+                        <td>{{ ticket.user.first_name }} {{ticket.user.last_name}}</td>
+                        <td><a href="{% url 'equipment-details' ticket.equipment.id %}">{{ ticket.equipment }}</a></td>
+                        <td>{{ ticket.equipment.department }}</td>
+                        <td>{{ ticket.ticket_type }}</td>
+                        <td>{{ ticket.status }}</td>
+                        <td>{{ ticket.response_time }}</td>
+                        {% if user.type == 'MANAGER'%}
+                          {% if ticket.status == 'OPEN' %} 
+                            <td><a href="{% url 'assign-engineer' ticket.id%}"><button class="btn btn-primary" type="submit">Assign to</button></a></td>                                  
+                          {% endif %}
+                        {% else %}
+                          {% if ticket.status == 'OPEN' %} 
+                            <td><button class='btn btn-primary'>Take</button></td>
+                          {% endif %}
+                        {% endif %}
+                  </tr>
+                {% endif %}
               {% endfor %}
             </tbody>
           </table>

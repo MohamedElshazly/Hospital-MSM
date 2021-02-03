@@ -1,6 +1,13 @@
 {% extends "dashboard/base.html" %}
 
 {% block content%}
+{% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{message.tags}}">
+            {{ message }}
+        </div>
+        {% endfor %}
+{% endif %}
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2">Medical Equipments</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
@@ -24,12 +31,23 @@
             </thead>
             <tbody>
             {% for equipment in object_list %}
-                <tr>
-                    <td>{{ equipment.id }}</td>
-                    <td>{{ equipment.name }}</td>
-                    <td> {{ equipment.department.name}}</td>
-                    <td><a href="{% url 'equipment-details' equipment.id %}"><button class="btn btn-primary">View Details</button></a></td>
-                </tr>
+                {% if equipment.is_approved %}
+                    {% if user.type == 'ENGINEER' and equipment.department in eng.department.all %}
+                        <tr>
+                            <td>{{ equipment.id }}</td>
+                            <td>{{ equipment.name }}</td>
+                            <td> {{ equipment.department.name}}</td>
+                            <td><a href="{% url 'equipment-details' equipment.id %}"><button class="btn btn-primary">View Details</button></a></td>
+                        </tr>
+                    {% elif user.type == 'MANAGER' or user.type == 'DOCTOR' %}
+                        <tr>
+                            <td>{{ equipment.id }}</td>
+                            <td>{{ equipment.name }}</td>
+                            <td> {{ equipment.department.name}}</td>
+                            <td><a href="{% url 'equipment-details' equipment.id %}"><button class="btn btn-primary">View Details</button></a></td>
+                        </tr>
+                    {% endif %}
+                {% endif %}
             {% endfor %}
 
             </tbody>
