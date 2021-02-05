@@ -26,6 +26,6 @@ class Ticket(models.Model):
     # img = models.ImageField(_("Equipment Picture"), upload_to='tickets_images', null=True)
 
     def __str__(self):
-        return self.user.username
+        return self.submitter.username
 
     
