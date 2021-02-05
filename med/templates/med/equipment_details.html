@@ -69,10 +69,7 @@
         </tbody>
       </table>
 </div>
-{% if equipment.qr_code %}
-  <a href="http://localhost:8000{{ equipment.qr_code.url }}">View QR Code</a>
-  <!-- <img class="qr" src="{{ equipment.qr_code.url }}" width="128" height="128"> -->
-{% endif %}
+
 
 {% if user.type == 'DOCTOR' %}
     {% if equipment.status == 'LIVE' %}
@@ -85,6 +82,10 @@
 
     <!--Buttons-->
     <div class="d-grid gap-2 col-6 mx-auto">
+        {% if equipment.qr_code %}
+          <a href="http://localhost:8000{{ equipment.qr_code.url }}"><button class="btn btn-primary">View QR Code</button></a>
+        {% endif %} 
+
         {% if user.type == 'ENGINEER' %}
           <a href="{% url 'add-edited-equipment' equipment.id%}"><button class="btn btn-primary" type="button">Edit</button></a>
         {% elif user.type == 'MANAGER' %}

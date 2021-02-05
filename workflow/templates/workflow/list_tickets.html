@@ -46,10 +46,7 @@
                             {% if ticket.status == 'OPEN' %} 
                               <td><a href="{% url 'assign-engineer' ticket.id%}"><button class="btn btn-primary" type="submit">Assign to</button></a></td>                                  
                             {% endif %}
-                          {% else %}
-                            {% if ticket.status == 'OPEN' %} 
-                              <td><button class='btn btn-primary'>Take</button></td>
-                            {% endif %}
+                          
                           {% endif %}
                       </tr>
                   {% elif user.type == 'MANAGER' %}
@@ -65,10 +62,6 @@
                         {% if user.type == 'MANAGER'%}
                           {% if ticket.status == 'OPEN' %} 
                             <td><a href="{% url 'assign-engineer' ticket.id%}"><button class="btn btn-primary" type="submit">Assign to</button></a></td>                                  
-                          {% endif %}
-                        {% else %}
-                          {% if ticket.status == 'OPEN' %} 
-                            <td><button class='btn btn-primary'>Take</button></td>
                           {% endif %}
                         {% endif %}
                   </tr>

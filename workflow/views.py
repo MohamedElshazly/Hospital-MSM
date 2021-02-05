@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import CreateView, ListView, UpdateView, DetailView 
 from workflow.models import Ticket
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
 from .forms import TicketForm, TicketFormID, AssignEng, AddDepartmentForm, AddEquipmentForm, DepartmentUpdateForm, EquipmentUpdateForm, AddEquipmentIDForm, AssignDepartment, AddEditedEquipmentForm
 from django.urls import reverse_lazy
 from med.models import Department, Doctor, Engineer, Equipment, Manager, EditedEquipment
@@ -40,13 +40,14 @@ class Submit_Ticket(LoginRequiredMixin, CreateView):
         return super().form_valid(form) 
 
 
-class Submit_Ticket_Using_Id(LoginRequiredMixin, CreateView):
+class Submit_Ticket_Using_Id(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Ticket
     template_name = 'workflow/submit_ticket_id.html'
 
     form_class = TicketFormID
     context_object_name = 'ticket' 
     success_url = reverse_lazy('home')
+    # redirect_field_name = reverse_lazy('home')
 
     def form_valid(self, form):
         form.instance.submitter = Doctor.objects.get(id = self.request.user.id)
@@ -54,7 +55,16 @@ class Submit_Ticket_Using_Id(LoginRequiredMixin, CreateView):
         eq.status = 'DOWN'
         eq.save()
         form.instance.equipment = Equipment.objects.get(id = self.kwargs['pk'])
-        return super().form_valid(form) 
+        return super().form_valid(form)
+
+    def test_func(self):
+        return self.request.user.type == 'DOCTOR' 
+    
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated and request.user.type == 'DOCTOR':
+            return super().dispatch(request, *args, **kwargs)
+        else:
+            return redirect('equipment-details', pk=self.kwargs['pk'])
 
 def sortFunc(e):
         return e.id
@@ -127,7 +137,7 @@ class Assign_Engineer(LoginRequiredMixin, UpdateView):
             user.save()
         
         send_mail('Work order',
-                'you have a new work order, please check it: http://localhost:8000/workflow/engineer_work/', 
+                'you have a new work order, please check it: https://hospital-msm.herokuapp.com/workflow/engineer_work/', 
                 EMAIL_FROM_ADDRESS,
                 [eng.email])
         return super().form_valid(form)
