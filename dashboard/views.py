@@ -13,10 +13,12 @@ def home(request):
         elif(request.user.type == 'DOCTOR'):
             doc = Doctor.objects.get(id = request.user.id)
             return render(request, template_name='dashboard/home.html', context={'user' : doc})
+        elif(request.user.type =='MANAGER'):
+            man = Manager.objects.get(id = request.user.id)
+            return render(request, template_name='dashboard/home.html', context={'user' : man})
     except:
-        return render(request, template_name='dashboard/home.html')
-    man = Manager.objects.get(id = request.user.id)
-    return render(request, template_name='dashboard/home.html', context={'user' : man})
+        return render(request, template_name='dashboard/HomePage.html')
+    
     
 @login_required
 def profile(request):

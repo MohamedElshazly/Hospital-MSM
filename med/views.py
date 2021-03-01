@@ -215,7 +215,7 @@ def RequestJoinHospitalView(request, hid, uid):
     hospital = Hospital.objects.get(id = hid)
     messages.success(request, f'A request to join hospital has been sent...')
     try :
-        #check if use already submitted a request, and delete it if he did
+        #check if user already submitted a request, and delete it if he did
         Notifications.objects.get(user=user).delete()
         #create new notification
         Notifications.objects.create(user=user, hospital=hospital)

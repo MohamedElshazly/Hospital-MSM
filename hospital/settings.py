@@ -155,6 +155,7 @@ EMAIL_TOKEN_LIFE = 60 * 60
 EMAIL_PAGE_TEMPLATE = 'dashboard/confirm_template.html'
 EMAIL_PAGE_DOMAIN = 'https://hospital-msm.herokuapp.com/'
 
+
 # For Django Email Backend
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
