@@ -38,14 +38,15 @@
                             <td>{{ equipment.name }}</td>
                             <td> {{ equipment.department.name}}</td>
                             <td><a href="{% url 'equipment-details' equipment.id %}"><button class="btn btn-primary">View Details</button></a></td>
+                            <td><a href="{% url 'equipment-procedure' equipment.id %}"><button class="btn btn-primary">View Procedures</button></a></td>
+
                         </tr>
                     {% elif user.type == 'MANAGER' or user.type == 'DOCTOR' %}
                         <tr>
                             <td>{{ equipment.id }}</td>
                             <td>{{ equipment.name }}</td>
                             <td> {{ equipment.department.name}}</td>
-                            <td><a href="{% url 'equipment-details' equipment.id %}"><button class="btn btn-primary">View Details</button></a></td>
-                        </tr>
+                            <td><a href="{% url 'equipment-details' equipment.id %}"><button class="btn btn-primary">View Details</button></a></td>                        </tr>
                     {% endif %}
                 {% endif %}
             {% endfor %}
@@ -56,6 +57,11 @@
     {% if user.type == 'ENGINEER' %}
     <div class="d-grid gap-2 col-5 mx-auto">
         <a href="{% url 'add-equipment' %}"><button class='btn btn-primary'>Add Equipment</button></a>
+    </div>
+    <div>
+        <div class="d-grid gap-2 col-5 mx-auto">
+            <a href="{% url 'add-procedure' %}"><button class='btn btn-primary'>Add Procedure</button></a>
+        </div>
     </div>
     {% endif %}
     

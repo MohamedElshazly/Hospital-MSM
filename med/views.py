@@ -2,13 +2,13 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic.edit import FormMixin
 from django.views.generic import CreateView, TemplateView, ListView, DetailView, UpdateView
-from .models import Engineer, Hospital, Doctor, Equipment, Manager, Notifications, Department, Company, EditedEquipment
-from .forms import HospitalForm, CreateCompanyForm, UploadJsonForm, RequestJoinForm
+from .models import Engineer, Hospital, Doctor, Procedure , Equipment, Manager, Notifications, Department, Company, EditedEquipment
+from .forms import HospitalForm, CreateCompanyForm, UploadJsonForm
 from django.urls import reverse_lazy
 from django.db.models import Q
 from med.forms import JoinHospitalForm
 from authentication.models import User
-from workflow.models import Ticket
+from workflow.models import Ticket 
 import os
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
@@ -50,8 +50,10 @@ class EquipmentListView(LoginRequiredMixin, ListView):
             object_list = man.hospital.equipment_set.all()
             # object_list = [eq for q1 in dep_list for eq in q1.equipment_set.all()]
             return object_list
-    
+    # The .get_context_data(..) method [Django-doc] returns a dictionary that contains the context that will be passed to the template for rendering.
+    #A ListView [Django-doc] will by default make a dictionary with keys and values
     def get_context_data(self, **kwargs):
+        # super() make me inherit from My class(EquipmentListView)
         context = super(EquipmentListView, self).get_context_data(**kwargs)
         if(self.request.user.type == 'ENGINEER'):
             eng = Engineer.objects.get(id = self.request.user.id)
@@ -66,7 +68,7 @@ class EditedEquipmentListView(LoginRequiredMixin, UserPassesTestMixin, ListView)
         man = Manager.objects.get(id = self.request.user.id)
         object_list = man.current_hospital.editedequipment_set.all()
         return object_list
-    
+    #checking if user passes test....
     def test_func(self):
         return self.request.user.type == 'MANAGER'
 
@@ -158,6 +160,34 @@ class EquipmentDetailsView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
             return True
         return False
 
+class EquipmentProcedureView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+    model = Equipment 
+    template_name = 'med/equipment_procedure.html'
+    context_object_name = 'equipment'
+    #can I send a specific context here ??
+
+    def get_context_data(self, **kwargs):
+        context = super(EquipmentProcedureView, self).get_context_data(**kwargs)
+        context['equipment'] = Equipment.objects.get(id = self.kwargs['pk'])
+        try:
+            context['ticket'] = Ticket.objects.get(Q(equipment = Equipment.objects.get(id = self.kwargs['pk'])), Q(status = 'OPEN'))
+            context['engineer'] = Procedure.objects.get(id = self.request.user.id)
+        except:
+            pass
+        return context
+    
+    def test_func(self):
+        eq = Equipment.objects.get(id = self.kwargs['pk'])
+        if eq.is_approved:
+            if self.request.user.type == 'ENGINEER':
+                eng = Engineer.objects.get(id = self.request.user.id)
+                if not self.get_object().department in eng.department.all():
+                    return False
+                return True 
+            return True
+        return False
+
+
 class PreApprovedEquipmentDetails(LoginRequiredMixin, DetailView):
     model = Equipment 
     template_name = 'med/pre_approved_equipment_details.html'
@@ -225,7 +255,7 @@ def RequestJoinHospitalView(request, hid, uid):
         Notifications.objects.create(user=user, hospital=hospital)
         return redirect('home')
         
-
+# Manager Notifications
 class NotificationsListView(LoginRequiredMixin, ListView):
     model = Notifications
     template_name = 'med/list_notifications.html'
@@ -235,9 +265,6 @@ class NotificationsListView(LoginRequiredMixin, ListView):
         object_list = Notifications.objects.filter(hospital=man_hos)
         return object_list
 
-
-
-    #Add a test 
     
 class CreateHospitalView(LoginRequiredMixin, CreateView):
     model = Hospital
@@ -283,7 +310,7 @@ def generate_PDF(request, pk):
 
 def handle_uploaded_file(request, f):
     man = Manager.objects.get(id = request.user.id)
-
+    # wb+ does create the file from scratch
     with open('hospital_data.json', 'wb+') as data:
         for chunk in f.chunks():
             data.write(chunk)
@@ -324,3 +351,7 @@ def upload_json(request):
     else:
         form = UploadJsonForm()
     return render(request, 'med/upload_json.html', {'form': form})
+
+
+def welcome(request):
+    return render(request,'dashboard/welcome.html')

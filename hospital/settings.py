@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # SECRET_KEY = '2xz79$x!p7z%qmyp#(#&f5ys9s^&*z_^gh%_-4#(h=ks(!nrd4'
-SECRET_KEY = os.environ.get('SECRET_KEY_MSM')
+SECRET_KEY = 'vpvqkx1ftr!##i2618r)9(b(-&u^78%&53_&zcp^g#e%-xlyg^'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -147,21 +147,22 @@ def verified_callback(user):
 
 
 EMAIL_VERIFIED_CALLBACK = verified_callback
-EMAIL_FROM_ADDRESS = 'omniscientist18@gmail.com'
+EMAIL_FROM_ADDRESS = 'engramymohamed15@gmail.com'
 EMAIL_MAIL_SUBJECT = 'Confirm your email'
 EMAIL_MAIL_HTML = 'dashboard/mail_body.html'
 EMAIL_MAIL_PLAIN = 'dashboard/mail_body.txt'
 EMAIL_TOKEN_LIFE = 60 * 60
 EMAIL_PAGE_TEMPLATE = 'dashboard/confirm_template.html'
-EMAIL_PAGE_DOMAIN = 'https://hospital-msm.herokuapp.com/'
+EMAIL_PAGE_DOMAIN = 'http://localhost:8000/'
+#EMAIL_PAGE_DOMAIN = 'https://hospital-msm.herokuapp.com/'
 
 
 # For Django Email Backend
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'omniscientist18@gmail.com'
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASS')
+EMAIL_HOST_USER = 'engramymohamed15@gmail.com'
+EMAIL_HOST_PASSWORD = 'xxsnjfrrzpzlbipf'
 EMAIL_USE_TLS = True
 
 django_heroku.settings(locals())

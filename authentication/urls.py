@@ -15,8 +15,9 @@ urlpatterns = [
     path('doctor-register/', DoctorRegister, name ='doctor-register'),
     path('request-join-hospital/<int:hid>/<int:uid>/', RequestJoinHospitalView, name ='request-join-hospital'),
     path('join-hospital/<int:uid>/', JoinHospitalView, name ='join-hospital'),
+    path('password_change/',auth_views.PasswordChangeView.as_view(template_name='change-password.html'), name ='password_change'),
     path('email/', include(email_urls))
 
-   
+   # reset > done > confirm > done > complete
 
 ]

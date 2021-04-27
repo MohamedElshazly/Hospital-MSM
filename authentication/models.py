@@ -36,11 +36,14 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 class User(AbstractUser):
+
+    photo_user = models.ImageField(upload_to='photos', null = True , blank = True)
     
     class Types(models.TextChoices):
         MANAGER = "MANAGER", "manager"
         ENGINEER = "ENGINEER", "engineer"
         DOCTOR = "DOCTOR", "doctor"
+    photo_user = models.ImageField(upload_to='photos', null = True , blank = True)
     
     email = models.EmailField(_('email address'), unique=True)
     type = models.CharField(_("Type"), max_length= 50, choices=Types.choices, default = Types.MANAGER)

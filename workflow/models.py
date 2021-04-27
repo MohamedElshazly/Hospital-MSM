@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from authentication.models import User
 # from multiselectfield import MultiSelectField
-from med.models import Doctor, Engineer, Equipment
+from med.models import Doctor, Engineer, Equipment , Hospital
 import datetime
 
 class Ticket(models.Model):
@@ -28,4 +28,3 @@ class Ticket(models.Model):
     def __str__(self):
         return self.submitter.username
 
-    

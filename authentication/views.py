@@ -41,3 +41,16 @@ def DoctorRegister(request):
         form = DoctorSignUpForm()
     return render(request, 'authentication/register_form.html', {'form' : form})
 
+def ForgetPassword(request):
+    if request.method == 'POST':
+        form = CustomSetPasswordForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'An Email has been sent, please confirm to log in..')
+            return redirect('login')
+    else:
+        form = CustomSetPasswordForm()
+    return render(request, 'authentication/password_reset_form.html', {'form' : form})
+
+#class SetPasswordForm 
+# A form that lets a user change their password without entering the old password.

@@ -1,12 +1,17 @@
 from django import forms
 from .models import Ticket
 from med.models import Equipment
-from med.models import Department, Doctor, EditedEquipment, Engineer, Manager
+from med.models import Department, Doctor, EditedEquipment, Engineer, Manager, Procedure
 from django.shortcuts import get_object_or_404
 
 
 class CustomMCF(forms.ModelChoiceField):
     def label_from_instance(self, equipment):
+        """
+        Convert objects into strings and generate the labels for the choices
+        presented by this object. Subclasses can override this method to
+        customize the display of the choices.
+        """
         return f'{equipment.name}, {equipment.department.name}'
 
 class ENGCustomMCF(forms.ModelChoiceField):
@@ -138,6 +143,32 @@ class AddEquipmentForm(forms.ModelForm):
     department = forms.ModelChoiceField(
         queryset=None,
         widget=forms.Select
+    )
+
+class AddProcedureForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request")
+        eng = Engineer.objects.get(id = self.request.user.id).current_hospital
+        super(AddProcedureForm, self).__init__(*args, **kwargs)    
+        self.fields['equipment'].queryset = eng.equipment_set.filter(status = 'LIVE')
+        #self.fields['equipment'].queryset = doc_hos.equipment_set.filter(status = 'LIVE') 
+        #doc_hos = get_object_or_404(Doctor,id = self.request.user.id).current_hospital
+        #super(TicketForm, self).__init__(*args, **kwargs)
+        #self.fields['equipment'].queryset = doc_hos.equipment_set.filter(status = 'LIVE')
+
+    class Meta:
+        model = Procedure
+        fields = ['physical_condition', 'electrical_safety', 'preventive_maintenance', 'preformance_testing','equipment']
+    
+    physical_condition = forms.Textarea()
+    electrical_safety  = forms.Textarea()
+    preventive_maintenance = forms.Textarea()
+    preformance_testing = forms.Textarea()
+
+    equipment = CustomMCF(
+        queryset= None, 
+        widget = forms.Select
     )
 
 class AddEditedEquipmentForm(forms.ModelForm):

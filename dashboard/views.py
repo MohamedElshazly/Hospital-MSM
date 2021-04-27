@@ -6,6 +6,10 @@ from .forms import UserUpdateForm
 
 # Create your views here.
 def home(request):
+    # try : 
+        #print(x)   not defind
+    #except:
+        #print('error')     excute
     try:
         if(request.user.type == 'ENGINEER'):
             eng = Engineer.objects.get(id = request.user.id)
@@ -34,7 +38,7 @@ def profile(request):
 @login_required
 def update_profile(request):
     if request.method == 'POST':
-        u_form = UserUpdateForm(request.POST, instance=request.user)
+        u_form = UserUpdateForm(request.POST,request.FILES, instance=request.user)
         if u_form.is_valid():
             u_form.save()
             # messages.success(request, f'Account Info Updated!!')
@@ -43,9 +47,7 @@ def update_profile(request):
             # messages.faliure(request, f'An error has occured!')
             return redirect('profile')
               
-    u_form = UserUpdateForm(instance=request.user)
-
     context = {
-            'u_form' : u_form
-            }
+            'u_form' : UserUpdateForm(instance=request.user),
+        }
     return render(request, "dashboard/update_profile.html", context)  

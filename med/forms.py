@@ -1,6 +1,6 @@
 from django import forms
 # from authentication.models import 
-from .models import Department, Equipment, Engineer, Hospital, Company
+from .models import Department, Equipment, Engineer, Hospital, Company , Procedure
 
 
 class CustomMMCF(forms.ModelMultipleChoiceField):
@@ -43,8 +43,3 @@ class CreateCompanyForm(forms.ModelForm):
 class UploadJsonForm(forms.Form):
     file = forms.FileField()
 
-class RequestJoinForm(forms.Form):
-    department = forms.ModelChoiceField(
-        queryset=Department.objects.all(),
-        widget=forms.Select
-    )

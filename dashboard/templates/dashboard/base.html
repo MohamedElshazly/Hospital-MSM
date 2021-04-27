@@ -39,6 +39,9 @@
             {%if user.type == 'MANAGER' %}
             {% if  user.hospital %}
                 <li class="nav-item text-nowrap">
+                  <a class="nav-link" href="{% url 'welcome' %}">Home</a>
+                </li>
+                <li class="nav-item text-nowrap">
                   <a class="nav-link" href="{% url 'upload-json' %}">Upload Json</a>
                 </li>
                 <li class="nav-item text-nowrap">
@@ -50,7 +53,7 @@
                 </li>
     
                 <li class="nav-item text-nowrap">
-                  <a class="nav-link" href="{% url 'list-notifications' %}">Notifications</a>
+                  <a class="nav-link" href="{% url 'list-notifications' %}">Request List</a>
                 </li>
     
                 <li class="nav-item text-nowrap">
@@ -69,6 +72,10 @@
             
         {% elif user.type == 'ENGINEER' %}
             {% if  user.in_hospital %}
+            
+              <li class="nav-item text-nowrap">
+                <a class="nav-link" href="{% url 'welcome' %}">Home</a>
+              </li>
               <li class="nav-item text-nowrap">
                 <a class="nav-link" href="{% url 'equipment-list' %}">Medical Equipment</a>
               </li>

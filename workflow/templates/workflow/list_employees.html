@@ -24,7 +24,7 @@
                 <td>{{ emp.current_hospital }}</td>
                 <td>{{emp.current_hospital.manager.first_name}} {{emp.current_hospital.manager.last_name}}</td>
                 {% if emp.type == 'ENGINEER' %}
-                  <td><a href="{% url 'assign-department' emp.id %}"><button class='btn btn-primary'>Assign a Department</button></a></td>
+                  <td><a href="{% url 'assign-department' emp.id %}"><button class='btn btn-primary'>Assigned Departments</button></a></td>
                 {% endif %}
               </tr>
               {% endfor %}

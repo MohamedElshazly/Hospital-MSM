@@ -2,9 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import CreateView, ListView, UpdateView, DetailView 
 from workflow.models import Ticket
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
-from .forms import TicketForm, TicketFormID, AssignEng, AddDepartmentForm, AddEquipmentForm, DepartmentUpdateForm, EquipmentUpdateForm, AddEquipmentIDForm, AssignDepartment, AddEditedEquipmentForm
+from .forms import TicketForm, TicketFormID, AssignEng, AddDepartmentForm, AddEquipmentForm, DepartmentUpdateForm, EquipmentUpdateForm, AddEquipmentIDForm, AssignDepartment, AddEditedEquipmentForm ,AddProcedureForm
 from django.urls import reverse_lazy
-from med.models import Department, Doctor, Engineer, Equipment, Manager, EditedEquipment
+from med.models import Department, Doctor, Engineer, Equipment, Manager, EditedEquipment, Procedure
 from authentication.models import User
 import time, datetime
 from django.contrib.auth.decorators import login_required
@@ -20,14 +20,17 @@ class Submit_Ticket(LoginRequiredMixin, CreateView):
     template_name = 'workflow/submit_ticket.html'
     form_class = TicketForm
     context_object_name = 'ticket' 
-    success_url = reverse_lazy('home')
+    success_url = reverse_lazy('home') #reverse_lazy() returns an object
 
     def get_form_kwargs(self):
+        """Return the keyword arguments for instantiating the form."""
         kwargs = super(Submit_Ticket, self).get_form_kwargs()
+        #**kwargs allows you to handle named arguments that you have not defined in advance
         kwargs.update({'request': self.request})
         return kwargs
 
     def form_valid(self, form):
+        """If the form is valid, redirect to the supplied URL."""
         form.instance.submitter = Doctor.objects.get(id = self.request.user.id)
         # doc = Doctor.objects.get(id = self.request.user.id)
         doc = get_object_or_404(Doctor, id = self.request.user.id)
@@ -61,6 +64,7 @@ class Submit_Ticket_Using_Id(LoginRequiredMixin, UserPassesTestMixin, CreateView
         return self.request.user.type == 'DOCTOR' 
     
     def dispatch(self, request, *args, **kwargs):
+        #dispatch Think of it as a middleman between requests and responses.
         if request.user.is_authenticated and request.user.type == 'DOCTOR':
             return super().dispatch(request, *args, **kwargs)
         else:
@@ -79,6 +83,7 @@ class List_Tickets(LoginRequiredMixin, ListView):
             eng = Engineer.objects.get(id = self.request.user.id)
             eng_hos = eng.current_hospital 
             dep_list = eng_hos.department_set.all()
+            # ordering by the newest id
             object_list = [ticket for q1 in dep_list for eq in q1.equipment_set.all() for ticket in eq.ticket_set.all().order_by('-id')]
             return object_list
         elif(self.request.user.type == 'DOCTOR'):
@@ -213,7 +218,7 @@ def Work_Process(request, pk, pk2):
     eng.save()
     return redirect('eng-work') 
 
-
+# engineer 
 class Add_Department(LoginRequiredMixin, CreateView):
     model = Department
     template_name = 'workflow/add_dep.html'
@@ -231,7 +236,7 @@ class Add_Department(LoginRequiredMixin, CreateView):
         context['departments'] = Department.objects.filter(hospital = eng.current_hospital)
         context['eng'] = eng
         return context
-
+# eng  > department > edit 
 @login_required
 def update_department(request, pk):
     dep = Department.objects.get(id = pk)
@@ -291,7 +296,7 @@ def update_edited_equipment(request, pk):
     equip.id = edited_equip.eq_id
     equip.save()
     edited_equip.delete()
-    return redirect('home')  
+    return redirect('welcome')  
 
 class Add_Edited_Equipment(LoginRequiredMixin, CreateView):
     model = EditedEquipment
@@ -300,6 +305,7 @@ class Add_Edited_Equipment(LoginRequiredMixin, CreateView):
 
     
     def get_success_url(self):
+        """Return the URL to redirect to after processing a valid form."""
         next = self.request.POST.get('next', self.request.META.get('HTTP_REFERER'))
         if next:
             return next
@@ -368,7 +374,7 @@ def approve_added_equipment(request, pk):
     # approve it
     equipment.is_approved = True
     equipment.save()
-    return redirect('home')
+    return redirect('welcome')
 
     
 class Add_Equipment_ID(LoginRequiredMixin, CreateView):
@@ -397,4 +403,55 @@ class Add_Equipment_ID(LoginRequiredMixin, CreateView):
         dep = Department.objects.get(id = self.kwargs['pk'])
         context['equipment'] = dep.equipment_set.all()
         return context 
+
+
+
+
+
+
+
+
+class Add_Procedure(LoginRequiredMixin, CreateView):
+    model = Procedure
+    template_name = 'workflow/add_procedure.html'
+    form_class = AddProcedureForm
+    # context_object_name = 'equip' 
+    # success_url = reverse_lazy('department-list')
+
+    def get_success_url(self):
+        next = self.request.POST.get('next', self.request.META.get('HTTP_REFERER'))
+        if next:
+            return next
+        else:
+            return reverse_lazy('department-list')
+        
+    def get_form_kwargs(self):
+            kwargs = super(Add_Procedure, self).get_form_kwargs()
+            kwargs.update({'request': self.request})
+            return kwargs
+
+    def form_valid(self, form):
+        form.instance.hospital = Engineer.objects.get(id = self.request.user.id).current_hospital
+        if self.request.user.type == 'ENGINEER':
+            form.instance.is_approved = False
+        messages.success(self.request, f'A request to Add new Procedure has been sent, waiting for manager approval...')
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super(Add_Procedure, self).get_context_data(**kwargs)
+        eng = Engineer.objects.get(id = self.request.user.id)
+        context['procedure'] = Procedure.objects.filter(hospital = eng.current_hospital)
+        context['eng'] = eng
+        return context
+
+@login_required
+def approve_added_procedure(request, pk):
+    #get equipment
+    procedure = Procedure.objects.get(id = pk)
+    # approve it
+    procedure.is_approved = True
+    procedure.save()
+    return redirect('welcome')
+
+
 

@@ -18,8 +18,13 @@ from django.urls import path, include
 from dashboard.views import home, profile, update_profile
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth import views as auth_views
+from authentication.forms import EmailValidationOnForgotPassword, CustomSetPasswordForm
+from django.conf.urls import url
+
 
 urlpatterns = [
+    url(r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$', auth_views.PasswordResetConfirmView.as_view(form_class = CustomSetPasswordForm), {'template_name': 'registration/password_reset_confirm.html'}, name='password_reset_confirm'),
     path('admin/', admin.site.urls),
     path('', home, name='home'),
     path('profile/', profile, name='profile'),

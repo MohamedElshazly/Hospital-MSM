@@ -62,7 +62,26 @@ class Equipment(models.Model):
     
 
     def get_absolute_url(self):
-        return reverse('equipment-details', kwargs={'pk' : self.pk})
+        return reverse('equipment-details', kwargs={'pk' : self.pk})    
+
+      
+
+class Procedure(models.Model):
+    is_approved = models.BooleanField(_("Is approved by manager"), default=True)
+    hospital = models.ForeignKey(Hospital, null = True, on_delete=models.CASCADE)
+    physical_condition = models.TextField(_("physical condition"),null=True)
+    electrical_safety = models.TextField(_("electrical safety"),null=True)
+    preventive_maintenance = models.TextField(_("preventive maintenance "),null=True)
+    preformance_testing  = models.TextField(_("preformance testing "),null=True)
+    equipment = models.ForeignKey(Equipment,null = True, on_delete=models.CASCADE)
+
+
+    def __str__(self):
+        return self.physical_condition
+    
+    
+    def get_absolute_url(self):
+        return reverse('equipment-details', kwargs={'pk' : self.pk})    
 
 
 

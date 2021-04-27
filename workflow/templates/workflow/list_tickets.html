@@ -21,7 +21,6 @@
               <tr>
                 <th scope="col">Service Request Number</th>
                 <th scope="col">Submitted by</th>
-                <th scope="col">Engineer</th>
                 <th scope="col">Equipment</th>
                 <th scope="col">Department</th>
                 <th scope="col">Ticket Type</th>
@@ -36,7 +35,6 @@
                       <tr>
                           <td>{{ ticket.id }}</td>
                           <td>{{ ticket.submitter.first_name }} {{ticket.submitter.last_name}}</td>
-                          <td>{{ ticket.user.first_name }} {{ticket.user.last_name}}</td>
                           <td><a href="{% url 'equipment-details' ticket.equipment.id %}">{{ ticket.equipment }}</a></td>
                           <td>{{ ticket.equipment.department }}</td>
                           <td>{{ ticket.ticket_type }}</td>
@@ -53,7 +51,6 @@
                     <tr>
                         <td>{{ ticket.id }}</td>
                         <td>{{ ticket.submitter.first_name }} {{ticket.submitter.last_name}}</td>
-                        <td>{{ ticket.user.first_name }} {{ticket.user.last_name}}</td>
                         <td><a href="{% url 'equipment-details' ticket.equipment.id %}">{{ ticket.equipment }}</a></td>
                         <td>{{ ticket.equipment.department }}</td>
                         <td>{{ ticket.ticket_type }}</td>
