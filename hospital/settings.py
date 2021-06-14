@@ -27,7 +27,7 @@ SECRET_KEY = 'vpvqkx1ftr!##i2618r)9(b(-&u^78%&53_&zcp^g#e%-xlyg^'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-#ALLOWED_HOSTS = ['hospital-msm.herokuapp.com']
+ALLOWED_HOSTS = ['hospital-msm.herokuapp.com']
 
 
 # Application definition
