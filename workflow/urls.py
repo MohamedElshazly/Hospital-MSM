@@ -12,14 +12,16 @@ from .views import (
                     Add_Department,
                     update_department,
                     Add_Equipment,
-                    Add_Procedure,
-                    approve_added_procedure,
                     update_equipment,
                     Add_Edited_Equipment,
                     update_edited_equipment,
                     Edited_Equipment_Details,
                     Add_Equipment_ID,
                     approve_added_equipment,
+                    Add_Procedure,
+                    approve_added_procedure,
+                    Filter_Tickets,
+                    history,
                     Staff_Response)
 
 urlpatterns = [
@@ -39,11 +41,10 @@ urlpatterns = [
     path('update-edited-equipment/<int:pk>/', update_edited_equipment, name='update-edited-equipment'),
     path('add-edited-equipment/<int:pk>/', Add_Edited_Equipment.as_view(), name='add-edited-equipment'),
     path('add-equipment/', Add_Equipment.as_view(), name='add-equipment'),
-
     path('add-procedure/', Add_Procedure.as_view(), name='add-procedure'),
     path('edited-equipment-details/<int:pk>/', Edited_Equipment_Details.as_view(), name='edited-equipment-details'),
     path('approve_added_equipment/<int:pk>/', approve_added_equipment, name='approve_added_equipment'),
-
     path('approve_added_procedure/<int:pk>/', approve_added_procedure, name='approve_added_procedure'),
-    path('add-equipment-id/<int:pk>/', Add_Equipment_ID.as_view(), name='add-equipment-id')
+    path('add-equipment-id/<int:pk>/', Add_Equipment_ID.as_view(), name='add-equipment-id'),
+    path('history/', history, name='history')
 ]

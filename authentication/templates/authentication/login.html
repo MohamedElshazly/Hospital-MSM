@@ -16,7 +16,7 @@
 <body class="text-center">
     <form class="form-signin" method="POST">
         {% csrf_token %}
-        <img class="mb-4" src="{% static 'dashboard/Untitled-1-01.png' %}" alt="" width="150" height="150">
+        <img class="mb-4" src="{% static 'dashboard/m.jpg' %}" alt="" width="150" height="150">
         {% if messages %}
         {% for message in messages %}
         <div class="alert alert-{{message.tags}}">

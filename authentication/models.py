@@ -43,7 +43,7 @@ class User(AbstractUser):
         MANAGER = "MANAGER", "manager"
         ENGINEER = "ENGINEER", "engineer"
         DOCTOR = "DOCTOR", "doctor"
-    # photo_user = models.ImageField(upload_to='photos', null = True , blank = True)
+    photo_user = models.ImageField(upload_to='photos', null = True , blank = True)
     
     email = models.EmailField(_('email address'), unique=True)
     type = models.CharField(_("Type"), max_length= 50, choices=Types.choices, default = Types.MANAGER)

@@ -68,12 +68,14 @@ class Equipment(models.Model):
 
 class Procedure(models.Model):
     is_approved = models.BooleanField(_("Is approved by manager"), default=True)
-    hospital = models.ForeignKey(Hospital, null = True, on_delete=models.CASCADE)
     physical_condition = models.TextField(_("physical condition"),null=True)
     electrical_safety = models.TextField(_("electrical safety"),null=True)
     preventive_maintenance = models.TextField(_("preventive maintenance "),null=True)
     preformance_testing  = models.TextField(_("preformance testing "),null=True)
     equipment = models.ForeignKey(Equipment,null = True, on_delete=models.CASCADE)
+    department = models.ForeignKey(Department, null = True, on_delete=models.CASCADE)
+    hospital = models.ForeignKey(Hospital, null = True, on_delete=models.CASCADE)
+
 
 
     def __str__(self):

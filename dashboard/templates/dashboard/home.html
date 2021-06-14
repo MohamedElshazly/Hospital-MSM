@@ -1,4 +1,33 @@
 {% extends "dashboard/base.html" %}
+{% load static %}
 {% block content %}
-<h2>Welcome {{user.type}} {{user.first_name}} {{user.last_name}}</h2>
+
+
+    <!--Start Carousel-->
+    
+    <div class="container">
+        <div id="myCarousel" class="carousel slide carousel-fade" data-ride="carousel">
+            
+            <ol class="carousel-indicators">
+                <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+            </ol>
+            
+            <div class="carousel-inner">
+                <div class="carousel-item active" data-interval="3000">
+                    <div class="overlay-image" >
+                        <img src="{% static 'dashboard/image.png' %}" alt="">
+                    </div>
+                    <div class="container">
+                        <div class="carousel-caption">
+                            <h1 class="slide1 " style = "color: black;" ><span class="SW ">Welcome {{user.type}} {{user.first_name}} {{user.last_name}}</span></h1>
+                            <p></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <!--End Carousel-->
+
 {% endblock %}

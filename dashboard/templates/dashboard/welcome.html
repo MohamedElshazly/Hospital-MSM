@@ -128,15 +128,15 @@
     </tr>
   </thead>
   <tbody>
-    {% for procedure in user.hospital.equipment_set.all %}
-      {% if not procedure.is_approved %}
+    {% for proced in user.hospital.procedure_set.all %}
+      {% if not proced.is_approved %}
         <tr>
-          <td>{{ procedure.id }}</td>
-          <td>{{ procedure.physical_condition }}</td>
-          <td>{{ procedure.electrical_safety}}</td>
-          <td>{{ procedure.preventive_maintenance}}</td>
-          <td>{{ procedure.preformance_testing}}</td>
-          <td><a href="{% url 'approve_added_procedure' procedure.id %}"><button class="btn btn-primary">Approve</button></a></td>
+          <td>{{ proced.id }}</td>
+          <td>{{ proced.physical_condition }}</td>
+          <td>{{ proced.electrical_safety}}</td>
+          <td>{{ proced.preventive_maintenance}}</td>
+          <td>{{ proced.preformance_testing}}</td>
+          <td><a href="{% url 'approve_added_procedure' proced.id %}"><button class="btn btn-primary">Approve</button></a></td>
         </tr>
       {% endif %}
     {% endfor %}

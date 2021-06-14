@@ -105,6 +105,39 @@ class List_Tickets(LoginRequiredMixin, ListView):
             context['eng'] = eng 
         return context
 
+class Filter_Tickets(LoginRequiredMixin, ListView):
+    model = Ticket
+    template_name = 'workflow/history_of_equipment.html'
+    
+    
+
+    def queryset(self):
+        if(self.request.user.type == 'ENGINEER'):
+            eng = Engineer.objects.get(id = self.request.user.id)
+            eng_hos = eng.current_hospital 
+            dep_list = eng_hos.department_set.all()
+            # ordering by the newest id
+            object_list = [ticket for q1 in dep_list for eq in q1.equipment_set.all() for ticket in eq.ticket_set.all().order_by('-id')]
+            return object_list
+        elif(self.request.user.type == 'DOCTOR'):
+            doc = Doctor.objects.get(id = self.request.user.id)
+            doc_hos = doc.current_hospital 
+            dep_list = doc_hos.department_set.all()
+            object_list = [ticket for q1 in dep_list for eq in q1.equipment_set.all() for ticket in eq.ticket_set.all().order_by('-id')]
+            return object_list
+        else:
+            man = Manager.objects.get(id = self.request.user.id)
+            dep_list = man.hospital.department_set.all()
+            object_list = [ticket for q1 in dep_list for eq in q1.equipment_set.all() for ticket in eq.ticket_set.all().order_by('-id')]
+            return object_list
+    
+    def get_context_data(self, **kwargs):
+        context = super(List_Tickets, self).get_context_data(**kwargs)
+        if(self.request.user.type == 'ENGINEER'):
+            eng = Engineer.objects.get(id = self.request.user.id)
+            context['eng'] = eng 
+        return context
+
 class Ticket_Details(LoginRequiredMixin, DetailView):
     model = Ticket
     template_name = 'workflow/ticket_details.html'
@@ -407,10 +440,6 @@ class Add_Equipment_ID(LoginRequiredMixin, CreateView):
 
 
 
-
-
-
-
 class Add_Procedure(LoginRequiredMixin, CreateView):
     model = Procedure
     template_name = 'workflow/add_procedure.html'
@@ -446,7 +475,7 @@ class Add_Procedure(LoginRequiredMixin, CreateView):
 
 @login_required
 def approve_added_procedure(request, pk):
-    #get equipment
+    #get procedure
     procedure = Procedure.objects.get(id = pk)
     # approve it
     procedure.is_approved = True
@@ -455,3 +484,9 @@ def approve_added_procedure(request, pk):
 
 
 
+def history(request):
+    context = {
+        'equipment' : Equipment.ticket_set.all(),
+    }
+    
+    return render(request, 'workflow/history_of_equipment.html',context)

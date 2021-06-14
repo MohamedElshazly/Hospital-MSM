@@ -163,7 +163,7 @@ class EquipmentDetailsView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 class EquipmentProcedureView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Equipment 
     template_name = 'med/equipment_procedure.html'
-    context_object_name = 'equipment'
+    context_object_name = 'procedure'
     #can I send a specific context here ??
 
     def get_context_data(self, **kwargs):

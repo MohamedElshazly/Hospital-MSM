@@ -31,14 +31,16 @@
             </thead>
             <tbody>
             {% for equipment in object_list %}
-                {% if equipment.is_approved %}
-                    {% if user.type == 'ENGINEER' and equipment.department in eng.department.all %}
+            {% for procedure in object_list %}
+                {% if equipment.is_approved and procedure.is_approved %} 
+                        {% if user.type == 'ENGINEER' and equipment.department in eng.department.all %}
                         <tr>
                             <td>{{ equipment.id }}</td>
                             <td>{{ equipment.name }}</td>
                             <td> {{ equipment.department.name}}</td>
                             <td><a href="{% url 'equipment-details' equipment.id %}"><button class="btn btn-primary">View Details</button></a></td>
                             <td><a href="{% url 'equipment-procedure' equipment.id %}"><button class="btn btn-primary">View Procedures</button></a></td>
+                            <td><a href="{% url 'history' %}"><button class="btn btn-primary">History of this equipment</button></a></td>
 
                         </tr>
                     {% elif user.type == 'MANAGER' or user.type == 'DOCTOR' %}
@@ -47,9 +49,12 @@
                             <td>{{ equipment.name }}</td>
                             <td> {{ equipment.department.name}}</td>
                             <td><a href="{% url 'equipment-details' equipment.id %}"><button class="btn btn-primary">View Details</button></a></td>                        </tr>
+
                     {% endif %}
                 {% endif %}
             {% endfor %}
+            {% endfor %}
+            
 
             </tbody>
         </table>
@@ -63,6 +68,7 @@
             <a href="{% url 'add-procedure' %}"><button class='btn btn-primary'>Add Procedure</button></a>
         </div>
     </div>
+    
     {% endif %}
     
 {% endblock %}

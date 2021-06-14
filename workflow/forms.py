@@ -149,9 +149,9 @@ class AddProcedureForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
-        eng = Engineer.objects.get(id = self.request.user.id).current_hospital
+        eng = Engineer.objects.get(id = self.request.user.id)
         super(AddProcedureForm, self).__init__(*args, **kwargs)    
-        self.fields['equipment'].queryset = eng.equipment_set.filter(status = 'LIVE')
+        self.fields['equipment'].queryset = eng.current_hospital.equipment_set.filter(status = 'LIVE')
         #self.fields['equipment'].queryset = doc_hos.equipment_set.filter(status = 'LIVE') 
         #doc_hos = get_object_or_404(Doctor,id = self.request.user.id).current_hospital
         #super(TicketForm, self).__init__(*args, **kwargs)
